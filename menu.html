@@ -1,0 +1,196 @@
+﻿<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Full Menu - The Food Palace</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#ec1313",
+            "background-light": "#f8f6f6",
+            "background-dark": "#1a0808",
+          },
+          fontFamily: {
+            "display": ["Plus Jakarta Sans", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "1rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  }
+  body {
+    min-height: 100dvh;
+  }
+</style>
+  <style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+
+<body class="bg-white dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+  <div class="relative flex min-h-screen w-full flex-col pb-24">
+    <nav
+      class="sticky top-0 z-40 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800">
+      <div class="flex items-center justify-between p-4">
+        <a href="index.html" class="text-slate-900 dark:text-white"><span
+            class="material-symbols-outlined">arrow_back_ios_new</span></a>
+        <h1 class="text-lg font-bold">Full Menu</h1>
+        <button class="text-slate-900 dark:text-white"><span class="material-symbols-outlined">search</span></button>
+      </div>
+      <div id="closedBanner"
+        class="hidden bg-slate-900 text-white p-3 text-center text-xs font-bold uppercase tracking-wider animate-pulse">
+        Store is currently closed. Orders are not being accepted.
+      </div>
+      <div id="category-tabs" class="flex overflow-x-auto gap-2 px-4 pb-4 no-scrollbar">
+        <button
+          class="category-btn whitespace-nowrap px-6 py-2 rounded-full bg-primary text-white font-bold text-sm shadow-md shadow-primary/20"
+          onclick="renderMenu('all')">All</button>
+      </div>
+    </nav>
+    <main class="p-4 grid grid-cols-2 gap-4" id="menuGrid">
+      <!-- Dynamic Menu Items -->
+    </main>
+    <div class="fixed bottom-6 left-4 right-4 z-50">
+      <div
+        class="bg-slate-900 text-white p-4 rounded-2xl flex items-center justify-between shadow-2xl shadow-black/40 border border-white/10">
+        <div class="flex flex-col"><span class="text-xs text-slate-400 font-medium" id="cartCountText">0 items in
+            cart</span><span class="text-lg font-bold text-white" id="cartTotalText">₹0.00</span></div>
+        <a href="cart.html"
+          class="bg-primary text-white px-6 py-3 rounded-xl font-extrabold flex items-center gap-2 active:scale-95 transition-transform shadow-lg shadow-primary/20"><span>View
+            Cart</span><span class="material-symbols-outlined text-base">shopping_bag</span></a>
+      </div>
+    </div>
+  </div>
+  <script>
+    const CONFIG_KEY = "food_palace_shop_config";
+    const MENU_KEY = "food_palace_menu";
+    const CART_KEY = "food_palace_cart";
+
+    function money(value) { return `₹${Number(value).toFixed(2)}`; }
+
+    function getCart() {
+      try { return JSON.parse(localStorage.getItem(CART_KEY) || "{}"); } catch (err) { return {}; }
+    }
+
+    function saveCart(cart) { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+
+    function renderMenu(category = 'all') {
+      const defaultMenu = [
+        { id: 'salmon', name: 'Royal Salmon Salad', price: 24, category: 'salads', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDtXPfgZuU9Ao6R0rThOSvzWancSGJS4b2PZau7VtjGbBoW26zgxbZGCGDt2RYIc5IwPgY8QFPSAP97bOpxwdUrVuJIfnVVSkt5ekUh4UqLPutd0FxSUzEWSbhXyMk5R724X_cFA2AgFN7Jc-ZWUuGE98GQpQaWBEmhImoe8vfNjxPwsHRphbcakGkbvHzt1q-vjvAAHEzci3Dt05ZETVYBZ7cLLL3ZFYbz6fIPudh1CxcrX_XE7zTGNdSli-96XHkd3MazLujIFM0w', inStock: true },
+        { id: 'truffle', name: 'Truffle Marguerita', price: 18.5, category: 'pizza', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDs71rf0yqLH45yFspTmKk0x8QNfPwehbgDEmfnIKpZByXWMoju1yJMECIDA6YpPtajy7-TKMTb5oi0A5BGVGcOaPLgN1L-LZvDr7ruVJrwF7lxVFnFGk1rpR5ofZw9pr6zXj0DIDQr8c4W3OtvGlS8UfYcBz9cAUQzd744SyB5HG5ZgKcWplJDqAmTvsQK46_bMcuLs8FA0v9GSH1xJ4ZA_B69dz_DpvCFIB3Y_swPIuYCduggfkpJQN-OiNR4kkYtrUVvQL4_2CNy', inStock: true },
+        { id: 'ribs', name: 'Smoked Ribs', price: 32, category: 'burgers', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCXeqB4GpKQsI2hutSHdEoS_UU7snMdoAOCCzNntEwPxXcsQ2Aso1G8rWZTFeeXTcIBdEmtbrCIEA2_JuahZAzZt5xmZn2nt4LuWwW8shT7CsCMyI6lgL6TBlB3SYnP1US1EyL-ka6URmfl6lDahGcjt8e-yHqE2GTyLbXFryM_QQ6EgxWoQh5fvHrY8kQwZPLkbqhCOvpy_-ZKGXEd3JL65cKN8Qo-j0AqDmdWnKsgn9qRXL_Jc81oINkU6KBzifqxcC_QEqd10mOY', inStock: true },
+        { id: 'burger', name: 'Palace Burger', price: 16, category: 'burgers', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDTDKXbmgTXSlvCC0H0zwvci9-TtkDO5zY3yHcUOSXEEHUl3SHpYgAwmt7M_BcUt7S0bVbjoomRJjHy5u_mXtOPGxJwW5c0UVxOSJ4HVDg2zn2HfT8W1OEqJdnodLP6nRxH0E_LoIRrTcrtFrgkQJp0ss7CvxT3vpRFroCysRdGuTQwZ-9CfGqnUt9Xnw6WJS0vH8tlIWqm_e5azFUQXr7z9sIdF935MZrj2E35Wfan8xKy1oACatRyKgnAhR0D5NhsnNqhcxUDYuvU', inStock: true },
+        { id: 'caesar', name: 'Classic Caesar', price: 14, category: 'salads', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDtXPfgZuU9Ao6R0rThOSvzWancSGJS4b2PZau7VtjGbBoW26zgxbZGCGDt2RYIc5IwPgY8QFPSAP97bOpxwdUrVuJIfnVVSkt5ekUh4UqLPutd0FxSUzEWSbhXyMk5R724X_cFA2AgFN7Jc-ZWUuGE98GQpQaWBEmhImoe8vfNjxPwsHRphbcakGkbvHzt1q-vjvAAHEzci3Dt05ZETVYBZ7cLLL3ZFYbz6fIPudh1CxcrX_XE7zTGNdSli-96XHkd3MazLujIFM0w', inStock: true },
+        { id: 'veggie', name: 'Veggie Deluxe', price: 19, category: 'pizza', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDs71rf0yqLH45yFspTmKk0x8QNfPwehbgDEmfnIKpZByXWMoju1yJMECIDA6YpPtajy7-TKMTb5oi0A5BGVGcOaPLgN1L-LZvDr7ruVJrwF7lxVFnFGk1rpR5ofZw9pr6zXj0DIDQr8c4W3OtvGlS8UfYcBz9cAUQzd744SyB5HG5ZgKcWplJDqAmTvsQK46_bMcuLs8FA0v9GSH1xJ4ZA_B69dz_DpvCFIB3Y_swPIuYCduggfkpJQN-OiNR4kkYtrUVvQL4_2CNy', inStock: true }
+      ];
+      let menu = JSON.parse(localStorage.getItem(MENU_KEY));
+      if (!menu) {
+        menu = defaultMenu;
+        localStorage.setItem(MENU_KEY, JSON.stringify(menu));
+      }
+      const grid = document.getElementById("menuGrid");
+      const filtered = category === 'all' ? menu : menu.filter(i => i.category === category);
+
+      // Dynamic Categories
+      const categories = [...new Set(menu.map(i => i.category))].filter(Boolean);
+      const tabsCont = document.getElementById('category-tabs');
+      if (tabsCont) {
+        tabsCont.innerHTML = `<button class="category-btn whitespace-nowrap px-6 py-2 rounded-full font-bold text-sm transition-all ${category === 'all' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}" onclick="renderMenu('all')">All</button>` +
+          categories.map(cat => `
+            <button class="category-btn whitespace-nowrap px-6 py-2 rounded-full font-bold text-sm transition-all ${category === cat ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}" onclick="renderMenu('${cat}')">${cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
+          `).join('');
+      }
+
+      const config = JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}');
+      const isShopOpen = config.isOpen !== false;
+      if (!isShopOpen) document.getElementById('closedBanner').classList.remove('hidden');
+
+      grid.innerHTML = filtered.map(item => `
+            <div class="menu-card flex flex-col gap-2 ${item.inStock ? '' : 'opacity-60 grayscale'}" data-id="${item.id}" data-category="${item.category}">
+                <div class="relative aspect-square rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+                    <img alt="${item.name}" class="w-full h-full object-cover" src="${item.image}"/>
+                    ${!item.inStock ? '<div class="absolute inset-0 flex items-center justify-center bg-black/40"><span class="bg-white text-black px-2 py-1 rounded text-[10px] font-bold uppercase">Sold Out</span></div>' : ''}
+                </div>
+                <div class="flex flex-col gap-1 px-1">
+                    <h3 class="font-bold text-sm leading-tight line-clamp-1">${item.name}</h3>
+                    <p class="text-primary font-extrabold text-base">${money(item.price)}</p>
+                    <button ${item.inStock && isShopOpen ? '' : 'disabled'} onclick="addToCart('${item.id}')" class="mt-1 w-full flex items-center justify-center gap-1 bg-primary text-white py-2 rounded-xl font-bold text-xs shadow-sm active:scale-95 disabled:bg-slate-300 disabled:active:scale-100 transition-transform">
+                        <span class="material-symbols-outlined text-sm">add</span> ${!isShopOpen ? 'Shop Closed' : (item.inStock ? 'Add' : 'Out of Stock')}
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function addToCart(id) {
+      const menu = JSON.parse(localStorage.getItem(MENU_KEY) || "[]");
+      const item = menu.find(i => i.id === id);
+      if (!item || !item.inStock) return;
+
+      const cart = getCart();
+      if (!cart[id]) {
+        cart[id] = { ...item, qty: 0 };
+      }
+      cart[id].qty += 1;
+      saveCart(cart);
+      renderCartSummary();
+    }
+
+    function renderCartSummary() {
+      const cart = getCart();
+      const items = Object.values(cart);
+      const qty = items.reduce((sum, item) => sum + item.qty, 0);
+      const total = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      document.getElementById("cartCountText").textContent = `${qty} item${qty === 1 ? "" : "s"} in cart`;
+      document.getElementById("cartTotalText").textContent = money(total);
+    }
+
+    function setupFilters() {
+      document.querySelectorAll(".category-btn").forEach(btn => {
+        btn.onclick = () => {
+          document.querySelectorAll(".category-btn").forEach(b => {
+            b.classList.remove("bg-primary", "text-white");
+            b.classList.add("bg-slate-100", "dark:bg-slate-800", "text-slate-600", "dark:text-slate-400");
+          });
+          btn.classList.add("bg-primary", "text-white");
+          btn.classList.remove("bg-slate-100", "dark:bg-slate-800", "text-slate-600", "dark:text-slate-400");
+          renderMenu(btn.dataset.category);
+        };
+      });
+    }
+
+    renderMenu();
+    renderCartSummary();
+    setupFilters();
+  </script>
+</body>
+
+</html>

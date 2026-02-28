@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/menu", "destination": "/menu.html" },
+    { "source": "/cart", "destination": "/cart.html" },
+    { "source": "/track", "destination": "/tracking.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/dashboard", "destination": "/admin-dashboard.html" }
+  ]
+}

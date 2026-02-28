@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Complete Payment - The Food Palace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec1313",
+                        "background-light": "#f8f6f6"
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+
+<body class="bg-background-light font-display text-slate-900">
+    <div class="min-h-screen flex flex-col items-center justify-center p-6">
+        <div class="w-full max-w-md bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
+            <!-- Header -->
+            <div class="bg-primary p-8 text-center text-white">
+                <div class="flex items-center justify-center size-12 bg-white/20 rounded-2xl mx-auto mb-4">
+                    <span class="material-symbols-outlined text-white">account_balance_wallet</span>
+                </div>
+                <h1 class="text-2xl font-black">Secure Payment</h1>
+                <p class="text-white/80 text-sm mt-1">Scan the QR code to pay through any UPI app</p>
+            </div>
+
+            <!-- Payment Body -->
+            <div class="p-8 flex flex-col items-center text-center">
+                <!-- Amount Label -->
+                <div class="mb-6">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total Amount to Pay</p>
+                    <h2 id="display-amount" class="text-4xl font-black text-slate-900 mt-1">₹0.00</h2>
+                </div>
+
+                <!-- QR Code Placeholder -->
+                <div
+                    class="relative size-60 bg-white border-8 border-slate-50 rounded-3xl p-4 shadow-inner mb-8 active:scale-95 transition-transform cursor-pointer">
+                    <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=Placeholder"
+                        alt="QR Code" class="size-full rounded-xl">
+                    <div
+                        class="absolute inset-0 flex items-center justify-center bg-white/80 opacity-0 hover:opacity-100 transition-opacity rounded-2xl">
+                        <span class="material-symbols-outlined text-primary text-4xl">zoom_in</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-2xl w-full mb-8">
+                    <div class="size-8 rounded-full bg-green-500/10 text-green-600 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">verified_user</span>
+                    </div>
+                    <p class="text-[11px] font-bold text-slate-500 text-left leading-tight">Payment is handled securely.
+                        Your order will be placed instantly after confirmation.</p>
+                </div>
+
+                <!-- UTR Input -->
+                <div class="w-full mb-6">
+                    <label
+                        class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 text-left ml-1">Last
+                        5 Digits of UTR / Transaction ID</label>
+                    <input id="utr-input" type="text" maxlength="5" placeholder="e.g. 12345"
+                        class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3 text-sm font-bold focus:border-primary/50 focus:ring-0 transition-all outline-none text-center tracking-[0.2em]">
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col gap-3 w-full">
+                    <button id="confirm-btn"
+                        class="w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        Confirm Payment
+                    </button>
+                    <button onclick="window.history.back()"
+                        class="text-slate-400 text-sm font-bold hover:text-slate-600 transition-colors">Cancel
+                        Payment</button>
+                </div>
+            </div>
+        </div>
+
+        <p class="mt-8 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">The Food Palace Payment Gateway
+        </p>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script src="order-service.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = Number(urlParams.get("amount") || 0).toFixed(2);
+        document.getElementById('display-amount').innerText = `₹${amount}`;
+
+        // Get Shop Config for UPI ID
+        const config = JSON.parse(localStorage.getItem("food_palace_shop_config") || '{}');
+        const shopName = config.name || "The Food Palace";
+        const upiId = config.upi || "";
+
+        if (upiId) {
+            // Generate standard UPI Payment URI: upi://pay?pa=VPA&pn=NAME&am=AMOUNT&cu=INR
+            const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(shopName)}&am=${amount}&cu=INR`;
+            document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUri)}`;
+
+            // Add a small helpful text
+            const statusBox = document.querySelector('.bg-slate-50 p');
+            if (statusBox) statusBox.innerHTML = `<strong>Real-time Payment active.</strong> Scan with GPay, PhonePe, or Paytm to pay <strong>₹${amount}</strong> to <strong>${shopName}</strong>.`;
+        } else {
+            document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent("QR Payment Placeholder - Set UPI in Admin")}`;
+        }
+
+        const confirmBtn = document.getElementById('confirm-btn');
+        confirmBtn.addEventListener('click', async () => {
+            const pending = JSON.parse(sessionStorage.getItem("pending_order"));
+            if (!pending) {
+                alert("Order session expired. Please go back to the cart.");
+                window.location.href = "cart.html";
+                return;
+            }
+
+            const utr = document.getElementById('utr-input').value.trim();
+            if (!utr || utr.length < 5) {
+                alert("Please enter exactly 5 digits of your UTR / Transaction ID for verification.");
+                return;
+            }
+
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="animate-spin material-symbols-outlined">progress_activity</span> Processing...';
+
+            try {
+                pending.status = 'Cooking'; // Pre-book is ready after payment
+                pending.utr = utr; // Pass UTR for admin verification
+                const order = await window.OrderService.createOrder(pending);
+                sessionStorage.removeItem("pending_order");
+                localStorage.removeItem("food_palace_cart");
+                window.location.href = `tracking.html?order_id=${encodeURIComponent(order.order_id)}`;
+            } catch (err) {
+                alert("Payment confirmation failed. Please try again.");
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Confirm Payment';
+            }
+        });
+    </script>
+</body>
+
+</html>

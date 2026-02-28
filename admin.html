@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restro Admin Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body class="admin-theme">
+  <main class="page">
+    <section class="login-card">
+      <p class="kicker">Administration</p>
+      <h1>Admin Login</h1>
+      <p class="subtext">Access dashboard, manage menu items, and monitor live orders.</p>
+
+      <form class="login-form" onsubmit="handleLogin(event)">
+        <label for="admin-email">Admin Email</label>
+        <input id="admin-email" type="email" placeholder="admin@restro.com" required />
+
+        <label for="admin-password">Password</label>
+        <input id="admin-password" type="password" placeholder="Enter secure password" required />
+
+        <button type="submit">Login as Admin</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    function handleLogin(e) {
+      e.preventDefault();
+      const pass = document.getElementById('admin-password').value;
+      const credentials = JSON.parse(localStorage.getItem('admin_credentials') || '{"password":"admin"}');
+
+      if (pass === credentials.password) {
+        sessionStorage.setItem('adminLoggedIn', 'true');
+        window.location.href = 'admin-dashboard.html';
+      } else {
+        alert("Incorrect password. Please try again.");
+      }
+    }
+  </script>
+</body>
+
+</html>

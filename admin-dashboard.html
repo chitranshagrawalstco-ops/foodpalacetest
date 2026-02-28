@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Food Palace Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec1313",
+                        "surface": "#ffffff",
+                        "background": "#fcfcfc",
+                        "border-light": "#f1f1f1",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+        body {
+            @apply bg-background font-display text-slate-900;
+            -webkit-tap-highlight-color: transparent;
+        }
+    }
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .chart-line {
+        stroke-dasharray: 400;
+        stroke-dashoffset: 400;
+        animation: dash 2s ease-in-out forwards;
+    }
+    @keyframes dash {
+        to { stroke-dashoffset: 0; }
+    }
+    .toggle-checkbox:checked {
+        @apply right-0 border-primary bg-primary;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+        @apply bg-primary/20;
+    }
+    .view-section {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .view-section.active {
+        display: flex;
+        opacity: 1;
+    }
+</style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <div class="relative flex min-h-screen w-full flex-col pb-32">
+
+        <div id="view-home" class="view-section active flex-col w-full">
+            <header
+                class="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-border-light bg-white/80 px-4 backdrop-blur-md">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <span class="material-symbols-outlined">dashboard</span>
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-bold leading-none text-slate-900">Admin Dashboard</h1>
+                        <a href="index.html"
+                            class="text-[10px] font-medium text-primary uppercase tracking-wider mt-1 hover:underline cursor-pointer block">Go
+                            to Storefront ↗</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                        onclick="alert('Viewing notifications')">
+                        <span class="material-symbols-outlined text-[22px]">notifications</span>
+                    </button>
+                    <div class="h-9 w-9 overflow-hidden rounded-full border-2 border-primary/20 cursor-pointer hover:ring-2 hover:ring-primary/50"
+                        onclick="switchTab('settings')">
+                        <img alt="Admin" class="h-full w-full object-cover"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNa5E9VM7Em0SD4dXkvGQ76AAzm8mw0lD163QLi9VHM8wsQgS7ENfuhAIbOuU_jyRop5GdPFodsXXlrBJ5ldjgrGU_-FXB2jHHI_pvsCh_5Yed-gAg6v35i674bf4tBHMv6I4lx9nziKlwNQ5San-6FiWN6qgroC4jYrc7dWPCe3NZxa4YjQF0XzA_nZMHhX0FEWGMNOZSb-j-ylqL1wPyhscdYg8X_8OmtseFOqScsVB_LUI_1Zymo-FV_f-VcxAJJIUYKrURMCEp" />
+                    </div>
+                </div>
+            </header>
+            <main class="flex flex-col gap-6 p-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div
+                        class="flex flex-col gap-2 rounded-2xl border border-border-light bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                                <span class="material-symbols-outlined text-sm">payments</span>
+                            </div>
+                            <span id="stat-revenue-diff"
+                                class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">+0%</span>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500">Today's Revenue</p>
+                            <p id="stat-revenue-today" class="text-lg font-extrabold text-slate-900">₹0</p>
+                        </div>
+                    </div>
+                    <div
+                        class="flex flex-col gap-2 rounded-2xl border border-border-light bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <span class="material-symbols-outlined text-sm">shopping_cart</span>
+                            </div>
+                            <span id="stat-orders-diff"
+                                class="text-[10px] font-bold text-primary bg-primary/5 px-1.5 py-0.5 rounded">+0%</span>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500">Today's Orders</p>
+                            <p id="stat-orders-today" class="text-lg font-extrabold text-slate-900">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="flex flex-col gap-4 rounded-2xl border border-border-light bg-white p-4 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                                <span class="material-symbols-outlined">star</span>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-slate-500">Best Seller Item</p>
+                                <p id="best-seller-name" class="text-sm font-bold text-slate-900">Calculating...</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="h-12 w-12 rounded-lg bg-slate-100 bg-cover bg-center" id="best-seller-img">
+                            </div>
+                            <div class="flex flex-1 flex-col">
+                                <p id="best-seller-stats" class="text-xs text-slate-500">Ordered 0 times this month</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-2 rounded-2xl border border-border-light bg-white p-4 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase text-slate-400">Past 30 Days</p>
+                        <p class="text-xs font-medium text-slate-500">Total Revenue</p>
+                        <p id="stat-revenue-30" class="text-base font-extrabold text-slate-900">₹0</p>
+                    </div>
+                    <div class="flex flex-col gap-2 rounded-2xl border border-border-light bg-white p-4 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase text-slate-400">Past 30 Days</p>
+                        <p class="text-xs font-medium text-slate-500">Total Orders</p>
+                        <p id="stat-orders-30" class="text-base font-extrabold text-slate-900">0</p>
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-border-light bg-white p-5 shadow-sm">
+                    <div class="mb-6 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900">Sales Overview</h3>
+                            <p class="text-[11px] text-slate-500">Last 7 days performance</p>
+                        </div>
+                        <button class="text-xs font-bold text-primary hover:underline"
+                            onclick="alert('Exporting Report...')">View Report</button>
+                    </div>
+                    <div class="relative h-48 w-full">
+                        <!-- Y-Axis Labels -->
+                        <div
+                            class="absolute left-0 top-0 bottom-8 flex flex-col justify-between text-[8px] font-bold text-slate-300 pointer-events-none">
+                            <span id="y-max">₹1,000</span>
+                            <span id="y-mid">₹500</span>
+                            <span>₹0</span>
+                        </div>
+                        <!-- SVG Chart Area -->
+                        <div class="ml-10 h-full">
+                            <svg class="h-full w-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 40">
+                                <!-- Horizontal Grid Lines -->
+                                <line x1="0" y1="0" x2="100" y2="0" stroke="#f1f5f9" stroke-width="0.5"></line>
+                                <line x1="0" y1="20" x2="100" y2="20" stroke="#f1f5f9" stroke-width="0.5"></line>
+                                <line x1="0" y1="40" x2="100" y2="40" stroke="#f1f5f9" stroke-width="0.5"></line>
+
+                                <path id="chart-main-line" d="M0,40 L100,40" fill="none" stroke="#ec1313"
+                                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                                    class="transition-all duration-700"></path>
+                                <path id="chart-main-gradient" d="M0,40 L100,40 V40 H0 Z" fill="url(#gradient)"
+                                    opacity="0.1" class="transition-all duration-700"></path>
+
+                                <g id="chart-main-dots"></g>
+
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" x2="0%" y1="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#ec1313;stop-opacity:1"></stop>
+                                        <stop offset="100%" style="stop-color:#ec1313;stop-opacity:0"></stop>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div id="chart-day-labels"
+                                class="mt-4 flex justify-between px-0 text-[9px] font-bold text-slate-400">
+                                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center justify-between px-1">
+                        <h3 class="text-sm font-bold text-slate-900">Active Orders</h3>
+                        <button class="text-xs font-bold text-primary hover:underline" onclick="switchTab('orders')">See
+                            All</button>
+                    </div>
+                    <div class="flex flex-col gap-3" id="active-orders-container">
+                        <div class="flex items-center gap-4 rounded-2xl border border-border-light bg-white p-3 shadow-sm cursor-pointer hover:bg-slate-50 transition-colors"
+                            onclick="switchTab('orders')">
+                            <div class="h-12 w-12 shrink-0 rounded-xl bg-slate-100 bg-cover bg-center"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDs71rf0yqLH45yFspTmKk0x8QNfPwehbgDEmfnIKpZByXWMoju1yJMECIDA6YpPtajy7-TKMTb5oi0A5BGVGcOaPLgN1L-LZvDr7ruVJrwF7lxVFnFGk1rpR5ofZw9pr6zXj0DIDQr8c4W3OtvGlS8UfYcBz9cAUQzd744SyB5HG5ZgKcWplJDqAmTvsQK46_bMcuLs8FA0v9GSH1xJ4ZA_B69dz_DpvCFIB3Y_swPIuYCduggfkpJQN-OiNR4kkYtrUVvQL4_2CNy')">
+                            </div>
+                            <div class="flex flex-1 flex-col">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-bold text-slate-900">#ORD-4920</span>
+                                    <span
+                                        class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">Cooking</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-0.5">2x Truffle Marguerita</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 rounded-2xl border border-border-light bg-white p-3 shadow-sm cursor-pointer hover:bg-slate-50 transition-colors"
+                            onclick="switchTab('orders')">
+                            <div class="h-12 w-12 shrink-0 rounded-xl bg-slate-100 bg-cover bg-center"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCXeqB4GpKQsI2hutSHdEoS_UU7snMdoAOCCzNntEwPxXcsQ2Aso1G8rWZTFeeXTcIBdEmtbrCIEA2_JuahZAzZt5xmZn2nt4LuWwW8shT7CsCMyI6lgL6TBlB3SYnP1US1EyL-ka6URmfl6lDahGcjt8e-yHqE2GTyLbXFryM_QQ6EgxWoQh5fvHrY8kQwZPLkbqhCOvpy_-ZKGXEd3JL65cKN8Qo-j0AqDmdWnKsgn9qRXL_Jc81oINkU6KBzifqxcC_QEqd10mOY')">
+                            </div>
+                            <div class="flex flex-1 flex-col">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-bold text-slate-900">#ORD-4919</span>
+                                    <span
+                                        class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full uppercase">Pending</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-0.5">1x Smoked Ribs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div id="view-menu" class="view-section flex-col w-full">
+            <header
+                class="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-border-light bg-white/80 px-4 backdrop-blur-md">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <span class="material-symbols-outlined">restaurant_menu</span>
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-bold leading-none text-slate-900">Menu Manager</h1>
+                        <a href="/"
+                            class="text-[10px] font-medium text-primary uppercase tracking-wider mt-1 hover:underline cursor-pointer block">Go
+                            to Storefront ↗</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                        onclick="openMenuModal()">
+                        <span class="material-symbols-outlined">add</span>
+                    </button>
+                    <div class="h-9 w-9 overflow-hidden rounded-full border-2 border-primary/20 cursor-pointer hover:ring-2 hover:ring-primary/50"
+                        onclick="switchTab('settings')">
+                        <img alt="Admin" class="h-full w-full object-cover"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNa5E9VM7Em0SD4dXkvGQ76AAzm8mw0lD163QLi9VHM8wsQgS7ENfuhAIbOuU_jyRop5GdPFodsXXlrBJ5ldjgrGU_-FXB2jHHI_pvsCh_5Yed-gAg6v35i674bf4tBHMv6I4lx9nziKlwNQ5San-6FiWN6qgroC4jYrc7dWPCe3NZxa4YjQF0XzA_nZMHhX0FEWGMNOZSb-j-ylqL1wPyhscdYg8X_8OmtseFOqScsVB_LUI_1Zymo-FV_f-VcxAJJIUYKrURMCEp" />
+                    </div>
+                </div>
+            </header>
+            <main class="flex flex-col gap-4 p-4">
+                <div class="flex flex-col gap-4">
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+                        <input id="menu-search"
+                            class="w-full rounded-xl border-border-light bg-white pl-10 pr-4 py-3 text-sm focus:border-primary focus:ring-primary shadow-sm transition-all"
+                            placeholder="Search dishes..." type="text" />
+                    </div>
+                    <div id="admin-category-tabs" class="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+                        <button
+                            class="whitespace-nowrap rounded-full bg-primary px-5 py-2 text-xs font-bold text-white shadow-md shadow-primary/20"
+                            onclick="renderMenuManager('all')">All Items</button>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-3 mt-2" id="admin-menu-container">
+                    <!-- Dynamic Menu Items -->
+                </div>
+            </main>
+        </div>
+
+        <!-- Menu Item Modal -->
+        <div id="menu-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeMenuModal()"></div>
+            <div
+                class="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 id="modal-title" class="text-lg font-bold text-slate-900">Add New Item</h3>
+                    <button class="text-slate-400 hover:text-slate-600" onclick="closeMenuModal()">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <input type="hidden" id="edit-item-id">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1">Dish
+                            Photo</label>
+                        <div class="mt-2 flex items-center gap-4">
+                            <div id="image-preview"
+                                class="h-20 w-20 rounded-2xl bg-slate-100 bg-cover bg-center border border-border-light">
+                            </div>
+                            <input type="file" id="item-image-input" class="hidden" accept="image/*"
+                                onchange="previewImage(this)">
+                            <button onclick="document.getElementById('item-image-input').click()"
+                                class="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 py-4 text-xs font-bold text-slate-500 hover:border-primary/50 hover:bg-red-50 hover:text-primary transition-all">
+                                <span class="material-symbols-outlined text-base">cloud_upload</span>
+                                <span>Upload from Gallery</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1">Item
+                            Name</label>
+                        <input id="item-name"
+                            class="rounded-xl border-border-light bg-slate-50 p-3 text-sm focus:border-primary focus:ring-primary"
+                            placeholder="e.g. Classic Pepperoni" type="text">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1">Price
+                            (₹)</label>
+                        <input id="item-price"
+                            class="rounded-xl border-border-light bg-slate-50 p-3 text-sm focus:border-primary focus:ring-primary"
+                            placeholder="0.00" type="number" step="0.01">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1">Category
+                            (Select or Type New)</label>
+                        <input id="item-category" list="category-list"
+                            class="rounded-xl border-border-light bg-slate-50 p-3 text-sm focus:border-primary focus:ring-primary"
+                            placeholder="e.g. Pizza, Burgers...">
+                        <datalist id="category-list">
+                            <option value="pizza">
+                            <option value="burgers">
+                            <option value="sides">
+                            <option value="drinks">
+                            <option value="desserts">
+                        </datalist>
+                    </div>
+                    <button onclick="saveMenuItem()"
+                        class="mt-4 w-full rounded-2xl bg-primary py-4 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:bg-red-700 active:scale-95 transition-all">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="password-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closePasswordModal()"></div>
+            <div
+                class="relative w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+                <div class="mb-5 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-slate-900">Security Check</h3>
+                    <button class="text-slate-400 hover:text-slate-600" onclick="closePasswordModal()">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1">Current
+                            Password</label>
+                        <input id="current-password"
+                            class="rounded-xl border-border-light bg-slate-50 p-3 text-sm focus:border-primary focus:ring-primary"
+                            placeholder="••••••••" type="password">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1">New Secure
+                            Password</label>
+                        <input id="new-password"
+                            class="rounded-xl border-border-light bg-slate-50 p-3 text-sm focus:border-primary focus:ring-primary"
+                            placeholder="Min 6 characters" type="password">
+                    </div>
+                    <button onclick="updatePassword()"
+                        class="mt-2 w-full rounded-2xl bg-primary py-4 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:bg-red-700 active:scale-95 transition-all">
+                        Update Password
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- End View Menu -->
+
+
+        <div id="view-orders" class="view-section flex-col w-full">
+            <header
+                class="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-border-light bg-white/80 px-4 backdrop-blur-md">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-bold leading-none text-slate-900">Order History</h1>
+                        <p class="text-[10px] font-medium text-slate-500 uppercase tracking-wider mt-1">The Food Palace
+                            Admin</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                        onclick="alert('Searching orders')">
+                        <span class="material-symbols-outlined text-[22px]">search</span>
+                    </button>
+                    <div class="h-9 w-9 overflow-hidden rounded-full border-2 border-primary/20 cursor-pointer hover:ring-2 hover:ring-primary/50"
+                        onclick="switchTab('settings')">
+                        <img alt="Admin" class="h-full w-full object-cover"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNa5E9VM7Em0SD4dXkvGQ76AAzm8mw0lD163QLi9VHM8wsQgS7ENfuhAIbOuU_jyRop5GdPFodsXXlrBJ5ldjgrGU_-FXB2jHHI_pvsCh_5Yed-gAg6v35i674bf4tBHMv6I4lx9nziKlwNQ5San-6FiWN6qgroC4jYrc7dWPCe3NZxa4YjQF0XzA_nZMHhX0FEWGMNOZSb-j-ylqL1wPyhscdYg8X_8OmtseFOqScsVB_LUI_1Zymo-FV_f-VcxAJJIUYKrURMCEp" />
+                    </div>
+                </div>
+            </header>
+            <div class="sticky top-16 z-30 bg-white/80 px-4 py-3 backdrop-blur-md border-b border-border-light">
+                <div class="flex gap-2 overflow-x-auto no-scrollbar">
+                    <button onclick="setOrderFilter('Current')"
+                        class="order-filter-btn whitespace-nowrap rounded-full bg-primary px-5 py-2 text-xs font-bold text-white shadow-sm shadow-primary/20 transition-transform active:scale-95">All
+                        Active</button>
+                    <button onclick="setOrderFilter('Advance')"
+                        class="order-filter-btn whitespace-nowrap rounded-full bg-slate-100 px-5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 transition-transform active:scale-95">Pre-Book</button>
+                    <button onclick="setOrderFilter('Stall')"
+                        class="order-filter-btn whitespace-nowrap rounded-full bg-slate-100 px-5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 transition-transform active:scale-95">Stall
+                        Orders</button>
+                    <button onclick="setOrderFilter('Completed')"
+                        class="order-filter-btn whitespace-nowrap rounded-full bg-slate-100 px-5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 transition-transform active:scale-95">Completed</button>
+                    <button onclick="setOrderFilter('Cancelled')"
+                        class="order-filter-btn whitespace-nowrap rounded-full bg-slate-100 px-5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 transition-transform active:scale-95">Cancelled</button>
+                </div>
+            </div>
+            <main class="flex flex-col gap-4 p-4">
+                <div class="flex flex-col rounded-2xl border border-primary/20 bg-white shadow-sm overflow-hidden">
+                    <div class="flex items-center gap-4 p-4 hover:bg-slate-50 cursor-pointer"
+                        onclick="this.nextElementSibling.classList.toggle('hidden')">
+                        <div class="h-12 w-12 shrink-0 rounded-xl bg-slate-100 bg-cover bg-center"
+                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDs71rf0yqLH45yFspTmKk0x8QNfPwehbgDEmfnIKpZByXWMoju1yJMECIDA6YpPtajy7-TKMTb5oi0A5BGVGcOaPLgN1L-LZvDr7ruVJrwF7lxVFnFGk1rpR5ofZw9pr6zXj0DIDQr8c4W3OtvGlS8UfYcBz9cAUQzd744SyB5HG5ZgKcWplJDqAmTvsQK46_bMcuLs8FA0v9GSH1xJ4ZA_B69dz_DpvCFIB3Y_swPIuYCduggfkpJQN-OiNR4kkYtrUVvQL4_2CNy')">
+                        </div>
+                        <div class="flex flex-1 flex-col">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-bold text-slate-900">#ORD-4920</span>
+                                <span
+                                    class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">Cooking</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <p class="text-xs font-semibold text-slate-700">James Wilson</p>
+                                <p class="text-xs font-bold text-slate-900">₹42.50</p>
+                            </div>
+                            <p class="text-[10px] text-slate-400">Today, 12:45 PM • 2 items (Click to collapse)</p>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-50 bg-slate-50/50 p-4 transition-all duration-300">
+                        <div class="flex flex-col gap-3">
+                            <div class="flex flex-col gap-2">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Items Ordered
+                                </p>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-600">2x Truffle Marguerita Pizza</span>
+                                    <span class="font-bold text-slate-900">₹36.00</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-600">1x Garlic Bread</span>
+                                    <span class="font-bold text-slate-900">₹6.50</span>
+                                </div>
+                            </div>
+                            <div class="h-px bg-slate-200"></div>
+                            <div class="flex flex-col gap-2">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Customer
+                                    Details</p>
+                                <div
+                                    class="flex items-center gap-2 text-xs text-slate-600 hover:text-primary cursor-pointer transition-colors">
+                                    <span class="material-symbols-outlined text-sm text-primary">call</span>
+                                    <span>+1 (555) 0123-4567</span>
+                                </div>
+                                <div
+                                    class="flex items-start gap-2 text-xs text-slate-600 cursor-pointer hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined text-sm text-primary">location_on</span>
+                                    <span>882 Oak Lane, North Wing, Apt 4C</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex gap-2">
+                                <button
+                                    class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 text-xs font-bold text-white shadow-lg shadow-primary/20 hover:bg-red-700 active:scale-95 transition-all"
+                                    onclick="alert('Receipt sent to printer!')">
+                                    <span class="material-symbols-outlined text-sm">print</span>
+                                    Re-print Receipt
+                                </button>
+                                <button
+                                    class="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 active:scale-95 transition-all"
+                                    onclick="alert('Viewing order options')">
+                                    <span class="material-symbols-outlined">more_horiz</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col rounded-2xl border border-border-light bg-white shadow-sm overflow-hidden">
+                    <div class="flex items-center gap-4 p-4 hover:bg-slate-50 cursor-pointer"
+                        onclick="this.nextElementSibling.classList.toggle('hidden')">
+                        <div class="h-12 w-12 shrink-0 rounded-xl bg-slate-100 bg-cover bg-center"
+                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCXeqB4GpKQsI2hutSHdEoS_UU7snMdoAOCCzNntEwPxXcsQ2Aso1G8rWZTFeeXTcIBdEmtbrCIEA2_JuahZAzZt5xmZn2nt4LuWwW8shT7CsCMyI6lgL6TBlB3SYnP1US1EyL-ka6URmfl6lDahGcjt8e-yHqE2GTyLbXFryM_QQ6EgxWoQh5fvHrY8kQwZPLkbqhCOvpy_-ZKGXEd3JL65cKN8Qo-j0AqDmdWnKsgn9qRXL_Jc81oINkU6KBzifqxcC_QEqd10mOY')">
+                        </div>
+                        <div class="flex flex-1 flex-col">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-bold text-slate-900">#ORD-4919</span>
+                                <span
+                                    class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">Delivered</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <p class="text-xs font-semibold text-slate-700">Sarah Jenkins</p>
+                                <p class="text-xs font-bold text-slate-900">₹18.90</p>
+                            </div>
+                            <p class="text-[10px] text-slate-400">Yesterday, 08:30 PM • 1 item (Click to expand)</p>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-50 bg-slate-50/50 p-4 transition-all duration-300 hidden">
+                        <div class="flex flex-col gap-3">
+                            <div class="flex flex-col gap-2">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Items Ordered
+                                </p>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-600">1x Smoked Ribs</span>
+                                    <span class="font-bold text-slate-900">₹18.90</span>
+                                </div>
+                            </div>
+                            <div class="h-px bg-slate-200"></div>
+                            <div class="mt-2 flex gap-2">
+                                <button
+                                    class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white border border-slate-200 py-3 text-xs font-bold text-slate-700 hover:bg-slate-50 active:scale-95 transition-all"
+                                    onclick="alert('Receipt sent to printer!')">
+                                    <span class="material-symbols-outlined text-sm">print</span>
+                                    Re-print Receipt
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canceled order -->
+                <div
+                    class="flex items-center gap-4 rounded-2xl border border-border-light bg-white p-4 shadow-sm opacity-75 hover:opacity-100 transition-opacity cursor-pointer">
+                    <div class="h-12 w-12 shrink-0 rounded-xl bg-slate-100 grayscale bg-cover bg-center hover:grayscale-0 transition-all"
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDs71rf0yqLH45yFspTmKk0x8QNfPwehbgDEmfnIKpZByXWMoju1yJMECIDA6YpPtajy7-TKMTb5oi0A5BGVGcOaPLgN1L-LZvDr7ruVJrwF7lxVFnFGk1rpR5ofZw9pr6zXj0DIDQr8c4W3OtvGlS8UfYcBz9cAUQzd744SyB5HG5ZgKcWplJDqAmTvsQK46_bMcuLs8FA0v9GSH1xJ4ZA_B69dz_DpvCFIB3Y_swPIuYCduggfkpJQN-OiNR4kkYtrUVvQL4_2CNy')">
+                    </div>
+                    <div class="flex flex-1 flex-col">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-bold text-slate-900">#ORD-4917</span>
+                            <span
+                                class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full uppercase">Cancelled</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-0.5">
+                            <p class="text-xs font-semibold text-slate-700">Emily Davis</p>
+                            <p class="text-xs font-bold text-slate-900 line-through text-slate-400">₹22.00</p>
+                        </div>
+                        <p class="text-[10px] text-slate-400">Yesterday, 06:00 PM • 2 items</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div id="view-settings" class="view-section flex-col w-full">
+            <header
+                class="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-border-light bg-white/80 px-4 backdrop-blur-md">
+                <div class="flex items-center gap-3">
+                    <button
+                        class="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 hover:bg-slate-200 transition-colors"
+                        onclick="switchTab('home')">
+                        <span class="material-symbols-outlined">arrow_back_ios_new</span>
+                    </button>
+                    <h1 class="text-base font-bold text-slate-900 flex items-center">Settings <button
+                            class="text-xs font-bold text-primary hover:underline hover:text-red-700 ml-4 transition-colors px-2 py-1 bg-primary/10 rounded"
+                            onclick="window.location.href='index.html'">Visit Storefront</button></h1>
+                </div>
+                <div
+                    class="h-9 w-9 overflow-hidden rounded-full border-2 border-primary/20 hover:ring-2 hover:ring-primary/50 cursor-pointer">
+                    <img alt="Admin" class="h-full w-full object-cover"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNa5E9VM7Em0SD4dXkvGQ76AAzm8mw0lD163QLi9VHM8wsQgS7ENfuhAIbOuU_jyRop5GdPFodsXXlrBJ5ldjgrGU_-FXB2jHHI_pvsCh_5Yed-gAg6v35i674bf4tBHMv6I4lx9nziKlwNQ5San-6FiWN6qgroC4jYrc7dWPCe3NZxa4YjQF0XzA_nZMHhX0FEWGMNOZSb-j-ylqL1wPyhscdYg8X_8OmtseFOqScsVB_LUI_1Zymo-FV_f-VcxAJJIUYKrURMCEp" />
+                </div>
+            </header>
+            <main class="flex flex-col p-4 gap-6">
+                <section class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2 px-1">
+                        <span class="material-symbols-outlined text-primary text-xl">storefront</span>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Stall Profile</h2>
+                    </div>
+                    <div
+                        class="flex flex-col gap-4 rounded-2xl border border-border-light bg-white p-4 shadow-sm group">
+                        <div class="flex items-center gap-4">
+                            <div class="relative h-20 w-20 shrink-0">
+                                <img id="shop-logo-preview" alt="Store Logo"
+                                    class="h-full w-full rounded-2xl object-cover border border-border-light"
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNa5E9VM7Em0SD4dXkvGQ76AAzm8mw0lD163QLi9VHM8wsQgS7ENfuhAIbOuU_jyRop5GdPFodsXXlrBJ5ldjgrGU_-FXB2jHHI_pvsCh_5Yed-gAg6v35i674bf4tBHMv6I4lx9nziKlwNQ5San-6FiWN6qgroC4jYrc7dWPCe3NZxa4YjQF0XzA_nZMHhX0FEWGMNOZSb-j-ylqL1wPyhscdYg8X_8OmtseFOqScsVB_LUI_1Zymo-FV_f-VcxAJJIUYKrURMCEp" />
+                                <input type="file" id="shop-logo-input" class="hidden" accept="image/*"
+                                    onchange="previewShopLogo(this)">
+                                <button
+                                    class="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-white shadow-lg lg:hover:scale-110 transition-transform"
+                                    onclick="document.getElementById('shop-logo-input').click()">
+                                    <span class="material-symbols-outlined text-sm">edit</span>
+                                </button>
+                            </div>
+                            <div class="flex flex-1 flex-col gap-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Stall Name</label>
+                                <input id="shop-name-input"
+                                    class="w-full border-none p-0 text-sm font-semibold focus:ring-0 text-slate-900 bg-transparent rounded-lg focus:bg-slate-50 transition-colors"
+                                    type="text" value="The Food Palace" oninput="showSaveBtn()" />
+                            </div>
+                        </div>
+                        <div class="h-px bg-border-light w-full"></div>
+                        <div class="flex flex-col gap-1 relative">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Description</label>
+                            <textarea id="shop-desc-input"
+                                class="w-full border-none p-0 text-sm font-medium focus:ring-0 text-slate-600 bg-transparent resize-none rounded-lg focus:bg-slate-50 transition-colors"
+                                rows="2"
+                                oninput="showSaveBtn()">Serving the finest gourmet pizzas and fresh organic salads since 2010.</textarea>
+                        </div>
+                        <div class="h-px bg-border-light w-full"></div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Operating Hours</label>
+                            <input id="shop-hours-input"
+                                class="w-full border-none p-0 text-sm font-medium focus:ring-0 text-slate-600 bg-transparent rounded-lg focus:bg-slate-50 transition-colors"
+                                type="text" placeholder="e.g. 10:00 AM - 10:00 PM" oninput="showSaveBtn()" />
+                        </div>
+                        <div class="h-px bg-border-light w-full"></div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Stall Address</label>
+                            <input id="shop-address-input"
+                                class="w-full border-none p-0 text-sm font-medium focus:ring-0 text-slate-600 bg-transparent rounded-lg focus:bg-slate-50 transition-colors"
+                                type="text" placeholder="Enter shop address" oninput="showSaveBtn()" />
+                        </div>
+                        <div class="h-px bg-border-light w-full"></div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Merchant UPI ID (for QR
+                                Payments)</label>
+                            <input id="shop-upi-input"
+                                class="w-full border-none p-0 text-sm font-bold text-primary focus:ring-0 bg-transparent rounded-lg focus:bg-slate-50 transition-colors placeholder:text-slate-300"
+                                type="text" placeholder="e.g. foodpalace@ybl" oninput="showSaveBtn()" />
+                        </div>
+                        <div class="pt-2">
+                            <button id="save-btn"
+                                class="w-full flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 hover:bg-red-700 active:scale-95 transition-all hidden"
+                                onclick="saveShopConfig()">
+                                <span class="material-symbols-outlined text-sm">save</span>
+                                <span>Save All Changes</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+                <section class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2 px-1">
+                        <span class="material-symbols-outlined text-primary text-xl">schedule</span>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Store Status</h2>
+                    </div>
+                    <div class="flex items-center justify-between rounded-2xl border border-border-light bg-white p-4 shadow-sm cursor-pointer hover:bg-slate-50 transition-colors"
+                        onclick="document.getElementById('store-status-toggle').click()">
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">Availability</p>
+                            <p class="text-xs text-slate-500" id="store-status-text">Store is open</p>
+                        </div>
+                        <label class="relative inline-flex cursor-pointer items-center"
+                            onclick="event.stopPropagation()">
+                            <input checked class="peer sr-only" id="store-status-toggle" type="checkbox"
+                                onchange="updateStoreStatus(this.checked)" />
+                            <div
+                                class="h-7 w-12 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-6 after:w-6 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white">
+                            </div>
+                        </label>
+                    </div>
+                </section>
+                <section class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2 px-1">
+                        <span class="material-symbols-outlined text-primary text-xl">payments</span>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Payment Methods</h2>
+                    </div>
+                    <div
+                        class="flex flex-col overflow-hidden rounded-2xl border border-border-light bg-white shadow-sm">
+                        <button
+                            class="flex items-center justify-between border-b border-border-light p-4 active:bg-slate-50 hover:bg-slate-50 transition-colors"
+                            onclick="alert('Configure Bank Transfer & Cards')">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-slate-400">credit_card</span>
+                                <span class="text-sm font-semibold text-slate-700">Bank Transfer &amp; Cards</span>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400">chevron_right</span>
+                        </button>
+                        <button
+                            class="flex items-center justify-between p-4 active:bg-slate-50 hover:bg-slate-50 transition-colors"
+                            onclick="alert('Configure Digital Wallets')">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-slate-400">account_balance_wallet</span>
+                                <span class="text-sm font-semibold text-slate-700">Digital Wallets</span>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400">chevron_right</span>
+                        </button>
+                    </div>
+                </section>
+                <section class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2 px-1">
+                        <span class="material-symbols-outlined text-primary text-xl">security</span>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Account Security</h2>
+                    </div>
+                    <div
+                        class="flex flex-col overflow-hidden rounded-2xl border border-border-light bg-white shadow-sm">
+                        <button
+                            class="flex items-center justify-between border-b border-border-light p-4 active:bg-slate-50 hover:bg-slate-50 transition-colors"
+                            onclick="openPasswordModal()">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-slate-400">lock</span>
+                                <span class="text-sm font-semibold text-slate-700">Change Password</span>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400">chevron_right</span>
+                        </button>
+                        <button
+                            class="flex items-center justify-between p-4 active:bg-slate-50 hover:bg-slate-50 transition-colors"
+                            onclick="alert('Configure 2FA Dialog')">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-slate-400">phonelink_lock</span>
+                                <span class="text-sm font-semibold text-slate-700">Two-Factor Authentication</span>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400">chevron_right</span>
+                        </button>
+                    </div>
+                </section>
+                <button
+                    class="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-white p-4 font-bold text-primary shadow-sm active:bg-primary/5 hover:bg-red-50 transition-colors"
+                    onclick="logout()">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Logout</span>
+                </button>
+                <p
+                    class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white p-2 rounded-xl mt-4">
+                    Version 2.4.0 <br> Admin System Online</p>
+            </main>
+        </div>
+
+        <nav
+            class="fixed bottom-0 left-0 right-0 z-50 flex h-20 items-center justify-around border-t border-border-light bg-white/95 px-6 pb-4 backdrop-blur-lg shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
+            <button id="nav-btn-home" class="nav-btn flex flex-col items-center gap-1 text-primary w-16"
+                onclick="switchTab('home')">
+                <span class="material-symbols-outlined nav-icon fill-1 transition-all duration-300">grid_view</span>
+                <span class="text-[10px] font-bold">Home</span>
+            </button>
+            <button id="nav-btn-orders" class="nav-btn flex flex-col items-center gap-1 text-slate-400 w-16"
+                onclick="switchTab('orders')">
+                <span class="material-symbols-outlined nav-icon transition-all duration-300">receipt_long</span>
+                <span class="text-[10px] font-bold">Orders</span>
+            </button>
+            <button
+                class="flex -mt-8 flex-col items-center justify-center h-14 w-14 rounded-full bg-primary text-white shadow-lg shadow-primary/40 ring-4 ring-white active:scale-95 transition-transform"
+                onclick="alert('Creating new manual order!')">
+                <span class="material-symbols-outlined">add</span>
+            </button>
+            <button id="nav-btn-menu" class="nav-btn flex flex-col items-center gap-1 text-slate-400 w-16"
+                onclick="switchTab('menu')">
+                <span class="material-symbols-outlined nav-icon transition-all duration-300">restaurant_menu</span>
+                <span class="text-[10px] font-bold">Menu</span>
+            </button>
+            <button id="nav-btn-settings" class="nav-btn flex flex-col items-center gap-1 text-slate-400 w-16"
+                onclick="switchTab('settings')">
+                <span class="material-symbols-outlined nav-icon transition-all duration-300">settings</span>
+                <span class="text-[10px] font-bold">Settings</span>
+            </button>
+        </nav>
+
+    </div>
+    <script>
+        const MENU_KEY = "food_palace_menu";
+        const ORDERS_KEY = "food_palace_all_orders";
+        const CONFIG_KEY = "food_palace_shop_config";
+
+        const defaultMenu = [
+            { id: 'salmon', name: 'Royal Salmon Salad', price: 24, category: 'salads', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDtXPfgZuU9Ao6R0rThOSvzWancSGJS4b2PZau7VtjGbBoW26zgxbZGCGDt2RYIc5IwPgY8QFPSAP97bOpxwdUrVuJIfnVVSkt5ekUh4UqLPutd0FxSUzEWSbhXyMk5R724X_cFA2AgFN7Jc-ZWUuGE98GQpQaWBEmhImoe8vfNjxPwsHRphbcakGkbvHzt1q-vjvAAHEzci3Dt05ZETVYBZ7cLLL3ZFYbz6fIPudh1CxcrX_XE7zTGNdSli-96XHkd3MazLujIFM0w', inStock: true },
+            { id: 'truffle', name: 'Truffle Marguerita', price: 18.5, category: 'pizza', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDs71rf0yqLH45yFspTmKk0x8QNfPwehbgDEmfnIKpZByXWMoju1yJMECIDA6YpPtajy7-TKMTb5oi0A5BGVGcOaPLgN1L-LZvDr7ruVJrwF7lxVFnFGk1rpR5ofZw9pr6zXj0DIDQr8c4W3OtvGlS8UfYcBz9cAUQzd744SyB5HG5ZgKcWplJDqAmTvsQK46_bMcuLs8FA0v9GSH1xJ4ZA_B69dz_DpvCFIB3Y_swPIuYCduggfkpJQN-OiNR4kkYtrUVvQL4_2CNy', inStock: true },
+            { id: 'ribs', name: 'Smoked Ribs', price: 32, category: 'burgers', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCXeqB4GpKQsI2hutSHdEoS_UU7snMdoAOCCzNntEwPxXcsQ2Aso1G8rWZTFeeXTcIBdEmtbrCIEA2_JuahZAzZt5xmZn2nt4LuWwW8shT7CsCMyI6lgL6TBlB3SYnP1US1EyL-ka6URmfl6lDahGcjt8e-yHqE2GTyLbXFryM_QQ6EgxWoQh5fvHrY8kQwZPLkbqhCOvpy_-ZKGXEd3JL65cKN8Qo-j0AqDmdWnKsgn9qRXL_Jc81oINkU6KBzifqxcC_QEqd10mOY', inStock: true },
+            { id: 'burger', name: 'Palace Burger', price: 16, category: 'burgers', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDTDKXbmgTXSlvCC0H0zwvci9-TtkDO5zY3yHcUOSXEEHUl3SHpYgAwmt7M_BcUt7S0bVbjoomRJjHy5u_mXtOPGxJwW5c0UVxOSJ4HVDg2zn2HfT8W1OEqJdnodLP6nRxH0E_LoIRrTcrtFrgkQJp0ss7CvxT3vpRFroCysRdGuTQwZ-9CfGqnUt9Xnw6WJS0vH8tlIWqm_e5azFUQXr7z9sIdF935MZrj2E35Wfan8xKy1oACatRyKgnAhR0D5NhsnNqhcxUDYuvU', inStock: true },
+            { id: 'caesar', name: 'Classic Caesar', price: 14, category: 'salads', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDtXPfgZuU9Ao6R0rThOSvzWancSGJS4b2PZau7VtjGbBoW26zgxbZGCGDt2RYIc5IwPgY8QFPSAP97bOpxwdUrVuJIfnVVSkt5ekUh4UqLPutd0FxSUzEWSbhXyMk5R724X_cFA2AgFN7Jc-ZWUuGE98GQpQaWBEmhImoe8vfNjxPwsHRphbcakGkbvHzt1q-vjvAAHEzci3Dt05ZETVYBZ7cLLL3ZFYbz6fIPudh1CxcrX_XE7zTGNdSli-96XHkd3MazLujIFM0w', inStock: true },
+            { id: 'veggie', name: 'Veggie Deluxe', price: 19, category: 'pizza', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDs71rf0yqLH45yFspTmKk0x8QNfPwehbgDEmfnIKpZByXWMoju1yJMECIDA6YpPtajy7-TKMTb5oi0A5BGVGcOaPLgN1L-LZvDr7ruVJrwF7lxVFnFGk1rpR5ofZw9pr6zXj0DIDQr8c4W3OtvGlS8UfYcBz9cAUQzd744SyB5HG5ZgKcWplJDqAmTvsQK46_bMcuLs8FA0v9GSH1xJ4ZA_B69dz_DpvCFIB3Y_swPIuYCduggfkpJQN-OiNR4kkYtrUVvQL4_2CNy', inStock: true }
+        ];
+
+        function switchTab(tab) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + tab).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-primary');
+                btn.classList.add('text-slate-400');
+                btn.querySelector('.nav-icon').classList.remove('fill-1');
+            });
+
+            const activeBtn = document.getElementById('nav-btn-' + tab);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('text-primary');
+                activeBtn.querySelector('.nav-icon').classList.add('fill-1');
+            }
+            window.scrollTo(0, 0);
+            if (tab === 'home') renderDashboardStats();
+            if (tab === 'menu') renderMenuManager();
+        }
+
+        function renderDashboardStats() {
+            try {
+                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+                const now = new Date();
+                const todayStr = now.toLocaleDateString();
+
+                let todayRev = 0, todayCount = 0;
+                let monthRev = 0, monthCount = 0;
+                const itemSales = {};
+                // 7-day chart logic
+                const daySales = Array(7).fill(0);
+                const dayLabels = [];
+                const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+                // Prepare last 7 days (including today)
+                const chartDays = [];
+                for (let i = 0; i < 7; i++) {
+                    const d = new Date();
+                    d.setDate(now.getDate() - (6 - i));
+                    d.setHours(0, 0, 0, 0);
+                    chartDays.push(d.getTime());
+                    dayLabels.push(weekdays[d.getDay()]);
+                }
+
+                orders.forEach(o => {
+                    // Only count "Completed" orders for revenue and stats
+                    if (o.status !== 'Completed') return;
+
+                    const orderDate = new Date(o.meta.order_date);
+                    const isToday = orderDate.toLocaleDateString() === todayStr;
+                    const diffDays = (now - orderDate) / (1000 * 60 * 60 * 24);
+                    const total = Number(o.meta.total) || 0;
+
+                    if (isToday) {
+                        todayRev += total;
+                        todayCount++;
+                    }
+
+                    if (diffDays <= 30) {
+                        monthRev += total;
+                        monthCount++;
+                        (o.items || []).forEach(item => {
+                            if (!item.name) return;
+                            itemSales[item.name] = (itemSales[item.name] || 0) + item.qty;
+                            if (!itemSales[item.name + "_img"]) itemSales[item.name + "_img"] = item.image;
+                        });
+                    }
+
+                    // Chart data
+                    const oTime = new Date(o.meta.order_date).setHours(0, 0, 0, 0);
+                    const dayIdx = chartDays.indexOf(oTime);
+                    if (dayIdx !== -1) daySales[dayIdx] += total;
+                });
+
+                const revTodayEl = document.getElementById('stat-revenue-today');
+                if (revTodayEl) revTodayEl.innerText = `₹${todayRev.toLocaleString()}`;
+                const ordTodayEl = document.getElementById('stat-orders-today');
+                if (ordTodayEl) ordTodayEl.innerText = todayCount;
+                const rev30El = document.getElementById('stat-revenue-30');
+                if (rev30El) rev30El.innerText = `₹${monthRev.toLocaleString()}`;
+                const ord30El = document.getElementById('stat-orders-30');
+                if (ord30El) ord30El.innerText = monthCount;
+
+                // Update Chart Visuals
+                const maxVal = Math.max(...daySales, 1000);
+                const points = daySales.map((val, i) => ({
+                    x: (i * 100 / 6),
+                    y: 40 - ((val / maxVal) * 35) // Margin of 5 at top
+                }));
+
+                const lineD = `M ${points.map(p => `${p.x},${p.y}`).join(' L ')}`;
+                const gradD = `${lineD} V 40 H 0 Z`;
+
+                const mainLine = document.getElementById('chart-main-line');
+                const mainGrad = document.getElementById('chart-main-gradient');
+                if (mainLine) mainLine.setAttribute('d', lineD);
+                if (mainGrad) mainGrad.setAttribute('d', gradD);
+
+                // Update axis labels
+                const yMax = document.getElementById('y-max');
+                const yMid = document.getElementById('y-mid');
+                if (yMax) yMax.innerText = `₹${Math.ceil(maxVal).toLocaleString()}`;
+                if (yMid) yMid.innerText = `₹${Math.ceil(maxVal / 2).toLocaleString()}`;
+
+                const labelsCont = document.getElementById('chart-day-labels');
+                if (labelsCont) labelsCont.innerHTML = dayLabels.map(l => `<span>${l}</span>`).join('');
+
+                // Manage Dots
+                const dotsGroup = document.getElementById('chart-main-dots');
+                if (dotsGroup) {
+                    dotsGroup.innerHTML = points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="1.5" fill="#ec1313" stroke="white" stroke-width="0.5" />`).join('');
+                }
+
+                let bestName = 'No Data', bestQty = 0, bestImg = '';
+                for (let name in itemSales) {
+                    if (name.endsWith("_img")) continue;
+                    if (itemSales[name] > bestQty) {
+                        bestQty = itemSales[name];
+                        bestName = name;
+                        bestImg = itemSales[name + "_img"];
+                    }
+                }
+                const bsNameEl = document.getElementById('best-seller-name');
+                if (bsNameEl) bsNameEl.innerText = bestName;
+                const bsStatsEl = document.getElementById('best-seller-stats');
+                if (bsStatsEl) bsStatsEl.innerText = `Ordered ${bestQty} times this month`;
+                const bsImg = document.getElementById('best-seller-img');
+                if (bsImg) bsImg.style.backgroundImage = bestImg ? `url('${bestImg}')` : '';
+            } catch (err) { console.error("Stats render failed", err); }
+        }
+
+        let adminMenuCategory = 'all';
+        function renderMenuManager(filter = null) {
+            if (filter !== null) adminMenuCategory = filter;
+            let menu = JSON.parse(localStorage.getItem(MENU_KEY));
+            if (!menu || !Array.isArray(menu)) {
+                menu = defaultMenu;
+                localStorage.setItem(MENU_KEY, JSON.stringify(menu));
+            }
+            const container = document.getElementById('admin-menu-container');
+            if (!container) return;
+
+            // Update Dynamic Categories & Datalist
+            const categories = [...new Set(menu.map(item => item.category))].filter(Boolean);
+            const tabsCont = document.getElementById('admin-category-tabs');
+            if (tabsCont) {
+                tabsCont.innerHTML = `<button class="whitespace-nowrap rounded-full ${adminMenuCategory === 'all' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'border border-border-light bg-white text-slate-600'} px-5 py-2 text-xs font-bold transition-all" onclick="renderMenuManager('all')">All Items</button>` +
+                    categories.map(cat => `
+                    <button class="whitespace-nowrap rounded-full ${adminMenuCategory === cat ? 'bg-primary text-white shadow-md shadow-primary/20' : 'border border-border-light bg-white text-slate-600'} px-5 py-2 text-xs font-bold transition-all" onclick="renderMenuManager('${cat}')">${cat.charAt(0).toUpperCase() + cat.slice(1)}</button>
+                `).join('');
+            }
+
+            const datalist = document.getElementById('category-list');
+            if (datalist) {
+                datalist.innerHTML = categories.map(cat => `<option value="${cat}">`).join('');
+            }
+
+            const search = (document.getElementById('menu-search')?.value || '').toLowerCase();
+            const filtered = menu.filter(item => {
+                const matchesCat = adminMenuCategory === 'all' || item.category === adminMenuCategory;
+                const matchesSearch = item.name.toLowerCase().includes(search);
+                return matchesCat && matchesSearch;
+            });
+
+            container.innerHTML = filtered.map(item => `
+                <div class="flex items-center gap-3 rounded-2xl border border-border-light bg-white p-3 shadow-sm ${item.inStock ? '' : 'opacity-75'}">
+                    <div class="h-16 w-16 shrink-0 rounded-xl bg-slate-100 bg-cover bg-center ${item.inStock ? '' : 'grayscale'}" style="background-image: url('${item.image}')"></div>
+                    <div class="flex flex-1 flex-col justify-between py-0.5">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h3 class="text-[13px] font-bold ${item.inStock ? 'text-slate-900' : 'text-slate-500'}">${item.name}</h3>
+                                <p class="text-xs font-extrabold text-primary mt-0.5">₹${Number(item.price).toFixed(2)}</p>
+                            </div>
+                            <div class="flex gap-1">
+                                <button class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-400 hover:bg-slate-200" onclick="openMenuModal('${item.id}')"><span class="material-symbols-outlined text-lg">edit</span></button>
+                                <button class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-500" onclick="deleteMenuItem('${item.id}')"><span class="material-symbols-outlined text-lg">delete</span></button>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center justify-between">
+                            <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">${item.inStock ? 'In Stock' : 'Out of Stock'}</span>
+                            <div class="relative inline-block w-10 align-middle select-none">
+                                <input ${item.inStock ? 'checked' : ''} class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-slate-200 appearance-none cursor-pointer transition-all duration-300 right-5 checked:right-0 checked:border-primary checked:bg-white" type="checkbox" onchange="toggleInStock('${item.id}', this)" />
+                                <label class="toggle-label block overflow-hidden h-5 rounded-full bg-slate-200 cursor-pointer transition-colors duration-300"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-center text-xs text-slate-400 py-8">No items found</p>';
+
+        }
+
+        // Add search listener
+        document.getElementById('menu-search')?.addEventListener('input', () => renderMenuManager());
+
+
+        function toggleInStock(id, checkbox) {
+            let menu = JSON.parse(localStorage.getItem(MENU_KEY));
+            const item = menu.find(i => i.id === id);
+            if (item) {
+                item.inStock = checkbox.checked;
+                localStorage.setItem(MENU_KEY, JSON.stringify(menu));
+                renderMenuManager();
+            }
+        }
+
+        function deleteMenuItem(id) {
+            if (!confirm('Are you sure you want to delete this dish?')) return;
+            let menu = JSON.parse(localStorage.getItem(MENU_KEY));
+            menu = menu.filter(i => i.id !== id);
+            localStorage.setItem(MENU_KEY, JSON.stringify(menu));
+            renderMenuManager();
+        }
+
+        let currentImageData = null;
+        function openMenuModal(id = null) {
+            const modal = document.getElementById('menu-modal');
+            modal.classList.remove('hidden');
+            currentImageData = null;
+            if (id) {
+                const menu = JSON.parse(localStorage.getItem(MENU_KEY));
+                const item = menu.find(i => i.id === id);
+                document.getElementById('modal-title').innerText = "Edit Item";
+                document.getElementById('edit-item-id').value = id;
+                document.getElementById('item-name').value = item.name;
+                document.getElementById('item-price').value = item.price;
+                document.getElementById('item-category').value = item.category;
+                document.getElementById('image-preview').style.backgroundImage = `url('${item.image}')`;
+                currentImageData = item.image;
+            } else {
+                document.getElementById('modal-title').innerText = "Add New Item";
+                document.getElementById('edit-item-id').value = "";
+                document.getElementById('item-name').value = "";
+                document.getElementById('item-price').value = "";
+                document.getElementById('item-category').value = "pizza";
+                document.getElementById('image-preview').style.backgroundImage = "";
+            }
+        }
+
+        function closeMenuModal() { document.getElementById('menu-modal').classList.add('hidden'); }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentImageData = e.target.result;
+                    document.getElementById('image-preview').style.backgroundImage = `url('${currentImageData}')`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveMenuItem() {
+            const name = document.getElementById('item-name').value;
+            const price = document.getElementById('item-price').value;
+            const category = document.getElementById('item-category').value.trim().toLowerCase();
+            const id = document.getElementById('edit-item-id').value;
+            if (!name || !price || !currentImageData) { alert("Please fill all fields and upload an image."); return; }
+            let menu = JSON.parse(localStorage.getItem(MENU_KEY)) || defaultMenu;
+            if (id) {
+                const item = menu.find(i => i.id === id);
+                if (item) { Object.assign(item, { name, price: Number(price), category, image: currentImageData }); }
+            } else {
+                menu.push({ id: 'item_' + Date.now(), name, price: Number(price), category, image: currentImageData, inStock: true });
+            }
+            localStorage.setItem(MENU_KEY, JSON.stringify(menu));
+            renderMenuManager();
+            closeMenuModal();
+        }
+
+        function loadOrders() {
+            try {
+                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+                renderActiveOrders(orders);
+                renderHistoryOrders(orders);
+                renderDashboardStats();
+            } catch (e) { }
+        }
+
+        function completeOrder(orderNo) {
+            let orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+            const order = orders.find(o => String(o.meta.order_no) === String(orderNo));
+            if (order) {
+                order.status = 'Completed';
+                localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+                loadOrders();
+            }
+        }
+
+        function approveOrder(orderNo) {
+            let orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+            const order = orders.find(o => String(o.meta.order_no) === String(orderNo));
+            if (order) {
+                order.status = 'Cooking';
+                localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+                loadOrders();
+                alert(`Order #ORD-${orderNo} Approved! Status updated to Cooking.`);
+            }
+        }
+
+        function cancelOrder(orderNo) {
+            if (!confirm('Are you sure you want to cancel this order?')) return;
+            let orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+            const order = orders.find(o => String(o.meta.order_no) === String(orderNo));
+            if (order) {
+                order.status = 'Cancelled';
+                localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+                loadOrders();
+            }
+        }
+
+        function deleteOrder(orderNo) {
+            if (!confirm('Are you sure you want to delete this order from records?')) return;
+            let orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+            orders = orders.filter(o => String(o.meta.order_no) !== String(orderNo));
+            localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+            loadOrders();
+        }
+
+        function renderActiveOrders(orders) {
+            const container = document.getElementById('active-orders-container');
+            if (!container) return;
+            const active = orders.filter(o => {
+                const s = o.status || 'Cooking';
+                return s !== 'Completed' && s !== 'Cancelled';
+            }).slice(0, 5);
+            container.innerHTML = active.map(o => {
+                const img = (o.items[0] && o.items[0].image) ? o.items[0].image : '';
+                const arrivalInfo = o.meta.arrival_time ? `<span class="text-[10px] text-primary font-bold">⏱ Expected ${o.meta.arrival_time}</span>` : '';
+                return `<div class="flex items-center gap-4 rounded-2xl border border-border-light bg-white p-3 shadow-sm cursor-pointer hover:bg-slate-50 transition-colors" onclick="switchTab('orders')"><div class="h-12 w-12 shrink-0 rounded-xl bg-slate-100 bg-cover bg-center" style="background-image: url('${img.replace(/'/g, "\\'")}')"></div><div class="flex flex-1 flex-col"><div class="flex items-center justify-between"><span class="text-sm font-bold text-slate-900">#ORD-${o.meta.order_no}</span><div class="flex items-center gap-1">${arrivalInfo}<span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">${o.status || 'Cooking'}</span></div></div><p class="text-[11px] font-bold text-slate-700 mt-0.5">${o.meta.customer_name || 'Anonymous'}</p><p class="text-[10px] text-slate-500">${o.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</p></div></div>`;
+            }).join('') || '<p class="text-center text-xs text-slate-400 py-4">No active orders</p>';
+        }
+
+        let currentOrderFilter = 'Current';
+        function setOrderFilter(filter) {
+            currentOrderFilter = filter;
+            document.querySelectorAll('.order-filter-btn').forEach(btn => {
+                if (btn.innerText.includes(filter) || (filter === 'Current' && btn.innerText.includes('Active'))) {
+                    btn.classList.add('bg-primary', 'text-white', 'shadow-primary/20');
+                    btn.classList.remove('bg-slate-100', 'text-slate-600');
+                } else {
+                    btn.classList.remove('bg-primary', 'text-white', 'shadow-primary/20');
+                    btn.classList.add('bg-slate-100', 'text-slate-600');
+                }
+            });
+            loadOrders();
+        }
+
+        function renderHistoryOrders(orders) {
+            const parent = document.querySelector('#view-orders main');
+            if (!parent) return;
+            const filtered = orders.filter(o => {
+                const s = o.status || 'Cooking';
+                const type = o.meta.booking_type || 'stall';
+
+                if (currentOrderFilter === 'Current') return s !== 'Completed' && s !== 'Cancelled';
+                if (currentOrderFilter === 'Advance') return type === 'advance' && s !== 'Completed' && s !== 'Cancelled';
+                if (currentOrderFilter === 'Stall') return type === 'stall' && s !== 'Completed' && s !== 'Cancelled';
+                return s === currentOrderFilter;
+            });
+            parent.innerHTML = [...filtered].reverse().map(o => {
+                const img = (o.items[0] && o.items[0].image) ? o.items[0].image : '';
+                const itemsHtml = o.items.map(i => `<div class="flex justify-between text-xs"><span class="text-slate-600">${i.qty}x ${i.name}</span><span class="font-bold text-slate-900">₹${Number(i.price * i.qty).toFixed(2)}</span></div>`).join('');
+
+                const arrivalInfo = o.meta.arrival_time ? `<p class="text-[10px] font-bold text-primary mt-1 flex items-center gap-1"><span class="material-symbols-outlined text-xs">schedule</span> Expected Arrival: ${o.meta.arrival_time}</p>` : '';
+
+                const statusColor = o.status === 'Completed' ? 'text-green-600 bg-green-50' : (o.status === 'Cancelled' ? 'text-slate-500 bg-slate-100' : (o.status === 'Pending Approval' ? 'text-orange-600 bg-orange-50' : 'text-primary bg-primary/10'));
+
+                let actionButtons = '';
+                if (o.status === 'Pending Approval') {
+                    actionButtons = `
+                        <button class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 text-xs font-bold text-white shadow-lg shadow-primary/20 hover:bg-red-700 active:scale-95 transition-all" onclick="approveOrder('${o.meta.order_no}')">Approve Order</button>
+                        <button class="flex items-center justify-center rounded-xl bg-white border border-red-200 px-4 text-xs font-bold text-red-600 hover:bg-red-50 active:scale-95 transition-all" onclick="cancelOrder('${o.meta.order_no}')">Reject</button>
+                    `;
+                } else if ((o.status || 'Cooking') !== 'Completed' && o.status !== 'Cancelled') {
+                    actionButtons = `
+                        <button class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-green-600 py-3 text-xs font-bold text-white shadow-lg shadow-green-200 hover:bg-green-700 active:scale-95 transition-all" onclick="completeOrder('${o.meta.order_no}')">Complete</button>
+                        <button class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white border border-red-200 py-3 text-xs font-bold text-red-600 hover:bg-red-50 active:scale-95 transition-all" onclick="cancelOrder('${o.meta.order_no}')">Cancel</button>
+                    `;
+                }
+
+                const bookingBadge = o.meta.booking_type === 'advance' ? '<span class="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-bold uppercase">Advance</span>' : '<span class="text-[9px] bg-slate-50 text-slate-600 px-1.5 py-0.5 rounded font-bold uppercase">Stall</span>';
+
+                return `
+                <div class="flex flex-col rounded-2xl border border-border-light bg-white shadow-sm overflow-hidden mb-4">
+                    <div class="flex items-center gap-4 p-4 hover:bg-slate-50 cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                        <div class="h-12 w-12 shrink-0 rounded-xl bg-slate-100 bg-cover bg-center" style="background-image: url('${img.replace(/'/g, "\\'")}')"></div>
+                        <div class="flex flex-1 flex-col">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-bold text-slate-900">#ORD-${o.meta.order_no}</span>
+                                    ${bookingBadge}
+                                </div>
+                                <span class="text-[10px] font-bold ${statusColor} px-2 py-0.5 rounded-full uppercase">${o.status || 'Cooking'}</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-0.5">
+                                <p class="text-xs font-bold text-slate-800">${o.meta.customer_name || 'Anonymous'}</p>
+                                <p class="text-xs font-bold text-slate-900">₹${Number(o.meta.total).toFixed(2)}</p>
+                            </div>
+                            <p class="text-[10px] text-slate-400">${o.meta.order_date} • ${o.items.length} items</p>
+                            ${arrivalInfo}
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-50 bg-slate-50/50 p-4 transition-all duration-300 hidden">
+                        <div class="flex flex-col gap-3">
+                            <div><p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Items</p>${itemsHtml}</div>
+                            <div class="h-px bg-slate-200"></div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Customer</p>
+                                <p class="text-xs text-slate-700 font-semibold">${o.meta.customer_name || 'Anonymous'}</p>
+                                <p class="text-xs text-slate-500">${o.meta.customer_phone || 'No Phone'}</p>
+                                ${o.meta.utr ? `<p class="mt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Verification</p><p class="text-xs text-primary font-bold">UTR Last 5: ${o.meta.utr}</p>` : ''}
+                            </div>
+                            <div class="mt-2 flex gap-2">
+                                ${actionButtons}
+                                <button class="flex items-center justify-center rounded-xl bg-slate-100 p-3 text-slate-500 hover:bg-red-50 hover:text-red-600 active:scale-95 transition-all" onclick="deleteOrder('${o.meta.order_no}')">
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('') || `<div class="flex flex-col items-center justify-center py-12 text-slate-400"><span class="material-symbols-outlined text-4xl mb-2">inbox</span><p class="text-sm font-medium">No ${currentOrderFilter.toLowerCase()} orders found</p></div>`;
+        }
+
+        let currentShopLogo = "";
+        function previewShopLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentShopLogo = e.target.result;
+                    document.getElementById('shop-logo-preview').src = currentShopLogo;
+                    showSaveBtn();
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveShopConfig() {
+            const config = {
+                name: document.getElementById('shop-name-input').value,
+                description: document.getElementById('shop-desc-input').value,
+                hours: document.getElementById('shop-hours-input').value,
+                address: document.getElementById('shop-address-input').value,
+                upi: document.getElementById('shop-upi-input').value,
+                logo: currentShopLogo || document.getElementById('shop-logo-preview').src,
+                isOpen: document.getElementById('store-status-toggle').checked
+            };
+            localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+            alert('Shop configuration saved!');
+            document.getElementById('save-btn').classList.add('hidden');
+        }
+
+        function openPasswordModal() { document.getElementById('password-modal').classList.remove('hidden'); }
+        function closePasswordModal() { document.getElementById('password-modal').classList.add('hidden'); }
+
+        function updatePassword() {
+            const current = document.getElementById('current-password').value;
+            const fresh = document.getElementById('new-password').value;
+
+            if (!current || !fresh) return alert("Please fill both fields.");
+            if (fresh.length < 6) return alert("New password must be at least 6 characters.");
+
+            const ADMIN_AUTH = "admin_credentials";
+            let credentials = JSON.parse(localStorage.getItem(ADMIN_AUTH) || '{"password":"admin"}');
+
+            if (current !== credentials.password) return alert("Existing password incorrect.");
+
+            credentials.password = fresh;
+            localStorage.setItem(ADMIN_AUTH, JSON.stringify(credentials));
+            alert("Password updated successfully!");
+            closePasswordModal();
+        }
+
+        function updateStoreStatus(isOpen) {
+            document.getElementById('store-status-text').innerText = isOpen ? 'Store is open' : 'Store is closed';
+            const config = JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}');
+            config.isOpen = isOpen;
+            localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+        }
+
+        function loadShopConfig() {
+            const config = JSON.parse(localStorage.getItem(CONFIG_KEY));
+            if (config) {
+                if (config.name) document.getElementById('shop-name-input').value = config.name;
+                if (config.description) document.getElementById('shop-desc-input').value = config.description;
+                if (config.hours) document.getElementById('shop-hours-input').value = config.hours;
+                if (config.address) document.getElementById('shop-address-input').value = config.address;
+                if (config.upi) document.getElementById('shop-upi-input').value = config.upi;
+                if (config.logo) {
+                    document.getElementById('shop-logo-preview').src = config.logo;
+                    currentShopLogo = config.logo;
+                }
+                const toggle = document.getElementById('store-status-toggle');
+                if (toggle) {
+                    toggle.checked = config.isOpen !== false;
+                    document.getElementById('store-status-text').innerText = toggle.checked ? 'Store is open' : 'Store is closed';
+                }
+            }
+        }
+
+        function logout() { sessionStorage.removeItem("adminLoggedIn"); window.location.href = "admin.html"; }
+
+        function showSaveBtn() {
+            const btn = document.getElementById('save-btn');
+            if (btn) btn.classList.remove('hidden');
+        }
+
+        window.onload = () => {
+            if (sessionStorage.getItem('adminLoggedIn') !== 'true') {
+                window.location.href = 'admin.html';
+                return;
+            }
+            loadOrders();
+            loadShopConfig();
+            // Real-time updates every 5 seconds
+            setInterval(loadOrders, 5000);
+        };
+        setTimeout(loadOrders, 100);
+    </script>
+</body>
+
+</html>

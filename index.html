@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>The Food Palace</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#ec1313",
+            "background-light": "#f8f6f6",
+            "background-dark": "#221010",
+          },
+          fontFamily: {
+            "display": ["Plus Jakarta Sans", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "1rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+  <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+    <nav
+      class="flex items-center bg-background-light dark:bg-background-dark p-4 sticky top-0 z-50 justify-between border-b border-primary/10">
+      <div class="flex items-center gap-3">
+        <img id="nav-logo" class="size-8 rounded-lg object-cover hidden" src="" alt="logo">
+        <h2 id="nav-title"
+          class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em]">
+          The Food Palace</h2>
+      </div>
+      <a href="cart.html" class="flex w-10 items-center justify-end">
+        <button class="flex cursor-pointer items-center justify-center rounded-xl h-10 bg-transparent text-primary">
+          <span class="material-symbols-outlined">shopping_bag</span>
+        </button>
+      </a>
+    </nav>
+    <div class="@container">
+      <div class="@[480px]:p-4">
+        <div id="hero-section"
+          class="flex min-h-[500px] flex-col gap-6 bg-cover bg-center bg-no-repeat @[480px]:rounded-xl items-center justify-center p-6 text-center shadow-inner"
+          style='background-image: linear-gradient(rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.7) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDTDKXbmgTXSlvCC0H0zwvci9-TtkDO5zY3yHcUOSXEEHUl3SHpYgAwmt7M_BcUt7S0bVbjoomRJjHy5u_mXtOPGxJwW5c0UVxOSJ4HVDg2zn2HfT8W1OEqJdnodLP6nRxH0E_LoIRrTcrtFrgkQJp0ss7CvxT3vpRFroCysRdGuTQwZ-9CfGqnUt9Xnw6WJS0vH8tlIWqm_e5azFUQXr7z9sIdF935MZrj2E35Wfan8xKy1oACatRyKgnAhR0D5NhsnNqhcxUDYuvU");'>
+          <div class="flex flex-col gap-3">
+            <h1 id="hero-title" class="text-white text-4xl font-black leading-tight tracking-tight @[480px]:text-6xl">
+              The Food Palace</h1>
+            <h2 id="hero-desc" class="text-white/90 text-base font-medium max-w-md mx-auto @[480px]:text-lg">Experience
+              the finest dining with our handcrafted signature dishes and authentic flavors.</h2>
+          </div>
+
+          <div id="shop-status-badge"
+            class="px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+            <span class="size-2 rounded-full bg-green-500 animate-pulse" id="status-dot"></span>
+            <span id="status-text">Open Now</span>
+          </div>
+
+          <a id="order-btn" href="menu.html"
+            class="flex min-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-8 bg-primary text-white text-base font-bold transition-transform active:scale-95 shadow-lg shadow-primary/30">
+            <span class="truncate">Order Now</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 md:px-10 py-8">
+      <div
+        class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-4">
+        <div class="flex items-center gap-3 text-primary">
+          <span class="material-symbols-outlined">schedule</span>
+          <h3 class="font-bold text-slate-900 dark:text-white">Operating Hours</h3>
+        </div>
+        <p id="display-hours" class="text-slate-600 dark:text-slate-400 text-sm">Loading hours...</p>
+      </div>
+
+      <div
+        class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-4">
+        <div class="flex items-center gap-3 text-primary">
+          <span class="material-symbols-outlined">location_on</span>
+          <h3 class="font-bold text-slate-900 dark:text-white">Find Us</h3>
+        </div>
+        <div class="flex flex-col gap-3">
+          <p id="display-address" class="text-slate-600 dark:text-slate-400 text-sm">Loading address...</p>
+          <button id="directions-btn"
+            class="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-bold hover:bg-slate-200 transition-colors">
+            <span class="material-symbols-outlined text-sm">directions</span>
+            Get Directions
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <section class="px-6 py-12 flex flex-col items-center text-center gap-4">
+      <div class="bg-primary/10 p-3 rounded-full text-primary mb-2">
+        <span class="material-symbols-outlined text-3xl">restaurant</span>
+      </div>
+      <h2 class="text-slate-900 dark:text-slate-100 text-3xl font-extrabold tracking-tight">About Us</h2>
+      <p id="display-about" class="text-slate-600 dark:text-slate-400 text-base leading-relaxed max-w-lg">At The Food
+        Palace, we blend traditional recipes with modern techniques to create an unforgettable culinary journey. Our
+        passion for premium ingredients and exceptional service drives everything we do.</p>
+    </section>
+  </div>
+
+  <script>
+    const CONFIG_KEY = "food_palace_shop_config";
+    function loadHomeConfig() {
+      const config = JSON.parse(localStorage.getItem(CONFIG_KEY));
+      if (config) {
+        if (config.name) {
+          document.getElementById('nav-title').innerText = config.name;
+          document.getElementById('hero-title').innerText = config.name;
+        }
+        if (config.description) {
+          document.getElementById('hero-desc').innerText = config.description;
+          document.getElementById('display-about').innerText = config.description;
+        }
+        if (config.hours) document.getElementById('display-hours').innerText = config.hours;
+        if (config.address) {
+          document.getElementById('display-address').innerText = config.address;
+          document.getElementById('directions-btn').onclick = () => {
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.address)}`, '_blank');
+          };
+        }
+        if (config.logo) {
+          const navLogo = document.getElementById('nav-logo');
+          navLogo.src = config.logo;
+          navLogo.classList.remove('hidden');
+        }
+
+        const isOpen = config.isOpen !== false;
+        const statusText = document.getElementById('status-text');
+        const statusDot = document.getElementById('status-dot');
+        const orderBtn = document.getElementById('order-btn');
+
+        if (!isOpen) {
+          statusText.innerText = "Closed Now";
+          statusDot.classList.remove('bg-green-500');
+          statusDot.classList.add('bg-slate-400');
+          orderBtn.href = "#";
+          orderBtn.classList.add('opacity-50', 'grayscale', 'cursor-not-allowed');
+          orderBtn.onclick = (e) => {
+            e.preventDefault();
+            alert("Sorry, we are currently closed. Please check our operating hours.");
+          };
+        }
+      }
+    }
+    window.onload = loadHomeConfig;
+  </script>
+</body>
+
+</html>

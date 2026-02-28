@@ -1,0 +1,127 @@
+:root {
+  --bg: radial-gradient(circle at top right, #ffe6b8, #ffd1d1 44%, #fef6e4);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --text: #2f2f2f;
+  --muted: #5f5f5f;
+  --primary: #d35400;
+  --primary-hover: #b84500;
+  --ring: rgba(211, 84, 0, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Manrope", sans-serif;
+  color: var(--text);
+}
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: var(--bg);
+}
+
+.login-card {
+  width: min(100%, 420px);
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  border-radius: 1.25rem;
+  padding: 1.4rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+.kicker {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0.4rem 0 0.5rem;
+  font-size: clamp(1.4rem, 3.4vw, 1.8rem);
+}
+
+.subtext {
+  margin: 0 0 1.15rem;
+  color: var(--muted);
+  line-height: 1.35;
+  font-size: 0.95rem;
+}
+
+.login-form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+label {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  border: 1px solid #dedede;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  font: inherit;
+  background: #fff;
+}
+
+input:focus {
+  border-color: var(--primary);
+  outline: 3px solid var(--ring);
+}
+
+button {
+  margin-top: 0.45rem;
+  border: 0;
+  border-radius: 0.75rem;
+  padding: 0.78rem;
+  background: var(--primary);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background: var(--primary-hover);
+}
+
+.alt-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.customer-theme {
+  --bg: radial-gradient(circle at top left, #ffe6b8, #ffd1d1 44%, #fef6e4);
+  --primary: #d35400;
+  --primary-hover: #b84500;
+  --ring: rgba(211, 84, 0, 0.25);
+}
+
+.admin-theme {
+  --bg: radial-gradient(circle at top right, #cde8ff, #d6ccff 46%, #eef6ff);
+  --primary: #184ca8;
+  --primary-hover: #143f8b;
+  --ring: rgba(24, 76, 168, 0.25);
+}
+
+@media (min-width: 768px) {
+  .login-card {
+    padding: 1.8rem;
+  }
+}

@@ -1,0 +1,12 @@
+__pycache__/
+*.py
+!server.py
+!supabase_schema.sql
+!inject_js.py
+# If they want these helper scripts, I'll keep them. But usually, it's better to push just the app.
+# I'll just keep everything except junk.
+# Actually, I'll allow all files for now.
+# Revised gitignore:
+__pycache__/
+.DS_Store
+Thumbs.db
