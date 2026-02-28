@@ -60,60 +60,68 @@
     return status || "Cooking";
   }
 
-  async function createOrder({ customerName, customerPhone, bookingType, items, subtotal, tax, total, utr, arrivalTime }) {
+  async function createOrder(orderData) {
+    const { customerName, customerPhone, bookingType, items, subtotal, tax, total, utr, arrivalTime } = orderData;
+
     if (hasSupabase()) {
-      const rpcUrl = `${window.SUPABASE_URL}/rest/v1/rpc/create_order_with_items`;
-      const res = await fetch(rpcUrl, {
-        method: "POST",
-        headers: sbHeaders(),
-        body: JSON.stringify({
-          p_customer_name: customerName,
-          p_customer_phone: customerPhone,
-          p_booking_type: bookingType,
-          p_items: items,
-          p_subtotal: subtotal,
-          p_tax: tax,
-          p_total: total,
-          p_utr: utr,
-          p_arrival_time: arrivalTime
-        })
-      });
+      try {
+        const rpcUrl = `${window.SUPABASE_URL}/rest/v1/rpc/create_order_with_items`;
+        const res = await fetch(rpcUrl, {
+          method: "POST",
+          headers: sbHeaders(),
+          body: JSON.stringify({
+            p_customer_name: customerName,
+            p_customer_phone: customerPhone,
+            p_booking_type: bookingType,
+            p_items: items,
+            p_subtotal: Number(subtotal),
+            p_tax: Number(tax),
+            p_total: Number(total),
+            p_utr: utr || null,
+            p_arrival_time: arrivalTime || null
+          })
+        });
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Supabase RPC failed: ${res.status} ${text}`);
+        if (!res.ok) {
+          const text = await res.text();
+          console.error(`Supabase RPC failed: ${res.status}`, text);
+          throw new Error("Cloud sync failed. Resorting to local queue.");
+        }
+
+        const data = await res.json();
+        const row = Array.isArray(data) ? data[0] : (data.length ? data[0] : data);
+        const meta = {
+          ...row,
+          order_id: row.order_id || row.id,
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          booking_type: bookingType,
+          utr: utr,
+          arrival_time: arrivalTime,
+          subtotal, tax, total,
+          status: bookingType === 'stall' ? 'Pending Approval' : 'Cooking'
+        };
+        saveSnapshot(items, meta);
+        saveToAllOrders(meta, items);
+        return { ...meta, source: "supabase" };
+      } catch (err) {
+        console.warn("Supabase failed, using local storage:", err.message);
       }
-
-      const data = await res.json();
-      const row = Array.isArray(data) ? data[0] : data;
-      const meta = {
-        ...row,
-        customer_name: customerName,
-        customer_phone: customerPhone
-      };
-      saveSnapshot(items, meta);
-      saveToAllOrders(meta, items);
-      return {
-        ...meta,
-        source: "supabase"
-      };
     }
 
+    // Fallback to local storage
     const localSeries = nextLocalOrderNumber();
-    const localOrderId = `local-${Date.now()}`;
     const meta = {
-      order_id: localOrderId,
+      order_id: `local-${Date.now()}`,
       order_no: localSeries.order_no,
       order_date: localSeries.order_date,
       customer_name: customerName,
       customer_phone: customerPhone,
       booking_type: bookingType,
-      utr,
+      utr: utr,
       arrival_time: arrivalTime,
-      subtotal,
-      tax,
-      total,
-      status: "Cooking"
+      subtotal, tax, total,
+      status: bookingType === 'stall' ? 'Pending Approval' : 'Cooking'
     };
     saveSnapshot(items, meta);
     saveToAllOrders(meta, items);
